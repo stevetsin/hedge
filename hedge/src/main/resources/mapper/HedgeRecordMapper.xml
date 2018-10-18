@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qzh.hedge.mapper.HedgeRecordMapper">
+
+    <insert id="insertHedgeRecord">
+        INSERT INTO
+        t_hedge_record(
+        bet_info_key,
+        curr_time,
+        hedge_info,
+        is_newest,
+        return_rate_string
+        )VALUES (
+        #{hedgeRecordModel.betInfoKey},
+        #{hedgeRecordModel.currTime},
+        #{hedgeRecordModel.hedgeInfo},
+        #{hedgeRecordModel.isNewest},
+        #{hedgeRecordModel.returnRateString}
+        )
+    </insert>
+
+    <update id="updateHedgeRecordNewest">
+        UPDATE
+        t_hedge_record
+        SET
+        is_newest = 0
+        WHERE
+        bet_info_key = #{betInfoKey}
+    </update>
+
+    <select id="getHedgeRecordsByKey" resultType="com.qzh.hedge.model.HedgeRecordModel">
+        SELECT
+        bet_info_key AS betInfoKey,
+        curr_time AS currTime,
+        hedge_info AS hedgeInfo,
+        is_newest AS isNewest,
+        return_rate_string AS  returnRateString
+        FROM
+        t_hedge_record
+        WHERE
+        bet_info_key = #{betInfoKey}
+    </select>
+
+    <select id="getAllRecords" resultType="com.qzh.hedge.model.HedgeRecordModel">
+        SELECT
+        bet_info_key AS betInfoKey,
+        curr_time AS currTime,
+        hedge_info AS hedgeInfo,
+        is_newest AS isNewest,
+        return_rate_string AS  returnRateString
+        FROM
+        t_hedge_record
+    </select>
+</mapper>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qzh.hedge.mapper.ClubMapper">
+
+
+
+    <select id="getClubByOtherName" resultType="com.qzh.hedge.model.ClubModel">
+        SELECT
+        c.club_id AS  clubId,
+        c.club_name AS clubName,
+        c.country,
+        c.club_type AS clubType
+        FROM
+        t_club c
+        INNER JOIN
+        t_club_dic cd
+        ON
+        c.club_id = cd.club_id
+        WHERE
+        cd.club_other_name = #{otherName}
+
+    </select>
+    <select id="getClubList" resultType="com.qzh.hedge.model.ClubModel">
+        SELECT
+        DISTINCT
+        c.club_id AS  clubId,
+        c.club_name AS clubName,
+        c.country,
+        c.club_type AS clubType
+        FROM
+        t_club c
+        WHERE 1=1
+        <if test="clubQueryParam.clubName !=null and clubQueryParam.clubName !=''">
+            AND c.club_name = #{clubQueryParam.clubName}
+        </if>
+        <if test="clubQueryParam.country !=null and clubQueryParam.country !=''">
+            AND c.country = #{clubQueryParam.country}
+        </if>
+        <if test="clubQueryParam.clubType !=null and clubQueryParam.clubType >0">
+            AND c.club_type = #{clubQueryParam.clubType}
+        </if>
+        <if test="clubQueryParam.matchTypeId !=null and clubQueryParam.matchTypeId>0">
+            AND c.club_id IN(SELECT club_id FROM t_club_match_relation WHERE match_type_id = #{clubQueryParam.matchTypeId})
+        </if>
+    </select>
+
+
+
+    <select id="getClubDetail" resultType="com.qzh.hedge.model.ClubModel">
+         SELECT
+        c.club_id AS  clubId,
+        c.club_name AS clubName,
+        c.country,
+        c.club_type AS clubType
+        FROM
+        t_club c
+        WHERE
+        c.club_id = #{clubId}
+    </select>
+
+
+    <select id="getClubOtherNames" resultType="java.lang.String">
+        SELECT
+        club_other_name
+        FROM
+        t_club_dic
+        WHERE
+        club_id = #{clubId}
+    </select>
+
+
+    <insert id="insertClubDic">
+       INSERT INTO
+       t_club_dic(club_id,club_other_name)
+       VALUES (
+       #{clubId},
+       #{clubOtherName}
+       )
+    </insert>
+
+
+    <insert id="insertClubModel" useGeneratedKeys="true" keyProperty="clubModel.clubId" keyColumn="club_id">
+        INSERT INTO
+        t_club(
+        club_name,
+        country,
+        club_type
+        )VALUES (
+        #{clubModel.clubName},
+        #{clubModel.country},
+        #{clubModel.clubType}
+        )
+    </insert>
+
+
+
+
+    <delete id="deleteClub">
+        DELETE FROM
+        t_club
+        WHERE
+        club_id = #{clubId}
+    </delete>
+
+    <delete id="deleteClubOtherNames">
+        DELETE FROM
+        t_club_dic
+        WHERE
+        club_id = #{clubId}
+    </delete>
+</mapper>

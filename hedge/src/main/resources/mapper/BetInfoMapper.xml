@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qzh.hedge.mapper.BetInfoMapper">
+
+
+    <insert id="insertBetInfo" useGeneratedKeys="true" keyProperty="betInfoModel.infoId" parameterType="com.qzh.hedge.model.BetInfoModel">
+        INSERT INTO t_bet_info(
+        info_key,
+        guest,
+        host,
+        platform,
+        info,
+        match_type,
+        is_newest,
+        is_in_match,
+        match_time,
+        created_time_stamp,
+        invalid_time
+        )VALUES (
+        #{betInfoModel.infoKey},
+        #{betInfoModel.guest},
+        #{betInfoModel.host},
+        #{betInfoModel.platform},
+        #{betInfoModel.info},
+        #{betInfoModel.matchType},
+        #{betInfoModel.isNewest},
+        #{betInfoModel.isInMatch},
+        #{betInfoModel.dateOfMatchTime},
+        #{betInfoModel.createdTimeStamp},
+        #{betInfoModel.invalidTime}
+        )
+    </insert>
+
+    <insert id="insertBetInfoOdds">
+        INSERT INTO
+        t_bet_info_odds(
+        bet_info_id,
+        odds_name,
+        odds_value
+        )VALUES
+        <foreach collection="betInfoOddsModelList" item="item" index="index" separator=",">
+            (
+            #{item.betInfoId},
+            #{item.oddsName},
+            #{item.oddsValue}
+            )
+        </foreach>
+    </insert>
+
+
+    <update id="updateIsNewestStatus">
+        UPDATE t_bet_info
+        SET
+        is_newest = 0
+        WHERE
+        info_key= #{key}
+        AND
+        platform = #{platform}
+    </update>
+
+    <update id="invalidBetInfo">
+        UPDATE
+        t_bet_info
+        SET
+        is_invalid = 1
+        WHERE
+        info_id IN
+        (
+        <foreach collection="shouldInvalidIds" item="id" index="index" separator=",">
+            #{id}
+        </foreach>
+        )
+    </update>
+
+
+    <select id="getBetInfoByKeyAndPlatform" resultType="com.qzh.hedge.model.BetInfoModel">
+        SELECT
+        info_id AS infoId,
+        info_key AS infoKey,
+        guest,
+        host,
+        platform,
+        info,
+        match_type AS matchType,
+        is_newest AS isNewest,
+        is_in_match AS isInMatch
+        FROM
+        t_bet_info
+        WHERE
+         info_key= #{key}
+        AND
+        platform = #{platform}
+    </select>
+
+
+
+    <select id="getNewestInfosByKey" resultType="com.qzh.hedge.model.BetInfoModel">
+        SELECT
+        info_id AS infoId,
+        info_key AS infoKey,
+        guest,
+        host,
+        platform,
+        info,
+        match_type AS matchType,
+        is_newest AS isNewest,
+        is_in_match AS isInMatch
+        FROM
+        t_bet_info
+        WHERE
+         info_key= #{key}
+        AND
+        is_newest = 1
+    </select>
+
+
+    <select id="getAllNewestInfos" resultType="com.qzh.hedge.model.BetInfoModel">
+        SELECT
+        info_id AS infoId,
+        info_key AS infoKey,
+        guest,
+        host,
+        platform,
+        info,
+        match_type AS matchType,
+        is_newest AS isNewest,
+        invalid_time AS invalidTime,
+        is_in_match AS isInMatch
+        FROM
+        t_bet_info
+        WHERE
+        is_newest = 1
+        AND
+        is_invalid = 0
+        <if test="betInfoQueryParam.platforms !=null and betInfoQueryParam.platforms.size()>0">
+            AND platform IN
+            (
+            <foreach collection="betInfoQueryParam.platforms" index="index" item="item" separator=",">
+                #{item}
+            </foreach>
+            )
+        </if>
+        order by match_time
+    </select>
+
+
+    <select id="getAllValidInfos" resultType="com.qzh.hedge.model.BetInfoModel">
+        SELECT
+        info_id AS infoId,
+        info_key AS infoKey,
+        guest,
+        host,
+        platform,
+        info,
+        match_type AS matchType,
+        is_newest AS isNewest,
+        invalid_time AS invalidTime,
+        is_in_match AS isInMatch
+        FROM
+        t_bet_info
+        WHERE
+        is_invalid = 0
+    </select>
+
+
+</mapper>
